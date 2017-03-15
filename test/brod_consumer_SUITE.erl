@@ -61,7 +61,7 @@ init_per_suite(Config) ->
 
 end_per_suite(_Config) -> ok.
 
-init_per_testcase(Case, Config) ->
+init_per_testcase(Case, Config0) ->
   ct:pal("=== ~p begin ===", [Case]),
   Client = Case,
   Topic = ?TOPIC,
@@ -74,9 +74,22 @@ init_per_testcase(Case, Config) ->
   ok = brod:start_client(?HOSTS, Client, ClientConfig),
   ok = brod:start_producer(Client, Topic, ProducerConfig),
   ok = brod:start_consumer(Client, Topic, []),
+  Config =
+    try
+      ?MODULE:Case({init, Config0})
+    catch
+      error : function_clause ->
+        Config0
+    end,
   [{client, Client} | Config].
 
 end_per_testcase(Case, Config) ->
+  try
+    ?MODULE:Case({'end', Config})
+  catch
+    error : function_clause ->
+      ok
+  end,
   ct:pal("=== ~p end ===", [Case]),
   Client = ?config(client),
   try
@@ -101,19 +114,38 @@ all() -> [F || {F, _A} <- module_info(exports),
 %% @doc Consumer should be smart enough to try greater max_bytes
 %% when it's not great enough to fetch one single message
 %% @end
+t_consumer_max_bytes_too_small({init, Config}) ->
+  meck:new(kpro, [passthrough, no_passthrough_cover, no_history]),
+  Config;
+t_consumer_max_bytes_too_small({'end', Config}) ->
+  meck:unload(kpro);
 t_consumer_max_bytes_too_small(Config) ->
+  ValueBytes = 2000,
+  MaxBytes1 = 1500,
+  MaxBytes2 = MaxBytes1 * 2,
+  Matcher =
+    fun(MaxB) ->
+        fun(_Topic, _Partition, _BeginOffset, _MaxWait, _MinBytes, MaxBytes) ->
+            ?assertEqual(MaxB, MaxBytes)
+        end
+    end,
+  %% Expect the fetch_request construction function called twice
+  meck:expect(kpro, fetch_request,
+              [Matcher(MaxBytes1), Matcher(MaxBytes2)],
+              _RetSpecs = ['_', '_']),
   Client = ?config(client),
   Partition = 0,
   Key = make_unique_key(),
-  Value = make_bytes(2000),
-  Options = [{max_bytes, 1500}],
+  Value = make_bytes(ValueBytes),
+  Options = [{max_bytes, MaxBytes1}],
   {ok, ConsumerPid} =
     brod:subscribe(Client, self(), ?TOPIC, Partition, Options),
   ok = brod:produce_sync(Client, ?TOPIC, Partition, Key, Value),
   receive
     {ConsumerPid, #kafka_message_set{messages = Messages}} ->
-      [#kafka_message{key = KeyReceived}] = Messages,
-      ?assertEqual(Key, KeyReceived);
+      [#kafka_message{key = KeyReceived, value = ValueReceived}] = Messages,
+      ?assertEqual(Key, KeyReceived),
+      ?assertEqual(Value, ValueReceived);
     Msg ->
       ct:fail("unexpected message received:\n~p", [Msg])
   end.
