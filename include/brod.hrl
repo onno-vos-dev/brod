@@ -48,8 +48,8 @@
                        , ref    :: reference()
                        }).
 
--record(brod_produce_reply, { call_ref :: brod:brod_call_ref()
-                            , result   :: brod:brod_produce_result()
+-record(brod_produce_reply, { call_ref :: brod:call_ref()
+                            , result   :: brod:produce_result()
                             }).
 
 -record(kafka_group_member_metadata,

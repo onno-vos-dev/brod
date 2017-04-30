@@ -133,14 +133,14 @@
              , group_config/0
              ]).
 
--export_type([ brod_produce_reply/0
+-export_type([ produce_reply/0
              , brod_client_config/0
              , brod_producer_config/0
              , brod_consumer_config/0
              , brod_group_config/0
-             , brod_partition_assignment/0
-             , brod_received_assignments/0
-             , brod_partition_fun/0
+             , partition_assignment/0
+             , received_assignments/0
+             , partition_fun/0
              , call_ref/0
              , produce_result/0
              ]).
@@ -152,8 +152,6 @@
 -deprecated([{start_link_client, '_', next_version}]).
 
 -include("brod_int.hrl").
--include("brod_macros.hrl").
--include("brod_records.hrl").
 
 %%%_* Types ====================================================================
 -type hostname() :: string().
@@ -203,14 +201,14 @@
 -type member_id()    :: kafka_group_member_id().
 -type group_config() :: brod_group_config().
 
--type brod_produce_reply()        :: #brod_produce_reply{}.
+-type produce_reply()        :: #brod_produce_reply{}.
 -type brod_client_config()        :: proplists:proplist().
 -type brod_producer_config()      :: proplists:proplist().
 -type brod_consumer_config()      :: proplists:proplist().
 -type brod_group_config()         :: proplists:proplist().
--type brod_partition_assignment() :: {kafka_topic(), [kafka_partition()]}.
--type brod_received_assignments() :: [#brod_received_assignment{}].
--type brod_partition_fun()        :: fun(( kafka_topic()
+-type partition_assignment() :: {kafka_topic(), [kafka_partition()]}.
+-type received_assignments() :: [#brod_received_assignment{}].
+-type partition_fun()        :: fun(( kafka_topic()
                                     , partition()
                                     , key()
                                     , value()) -> {ok, partition()}).
@@ -406,7 +404,7 @@ produce(ProducerPid, Key, Value) ->
 %% This function first lookup the producer pid,
 %% then call produce/3 to do the real work.
 %% @end
--spec produce(client(), topic(), partition() | brod_partition_fun(),
+-spec produce(client(), topic(), partition() | partition_fun(),
               key(), value()) -> {ok, call_ref()} | {error, any()}.
 produce(Client, Topic, PartFun, Key, Value) when is_function(PartFun) ->
   case brod_client:get_partitions_count(Client, Topic) of
@@ -448,7 +446,7 @@ produce_sync(Pid, Key, Value) ->
 %% however if producer is started with required_acks set to 0, this function
 %% will return once the messages are buffered in the producer process.
 %% @end
--spec produce_sync(client(), topic(), partition() | brod_partition_fun(),
+-spec produce_sync(client(), topic(), partition() | partition_fun(),
                    key(), value()) -> ok | {error, any()}.
 produce_sync(Client, Topic, Partition, Key, Value) ->
   case produce(Client, Topic, Partition, Key, Value) of
