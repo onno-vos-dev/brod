@@ -149,6 +149,10 @@
 
 -export_type([ offset_time/0 ]).
 
+-export_type([ offset_commit_policy/0
+             , partition_assignment_strategy/0
+             ]).
+
 -deprecated([{start_link_client, '_', next_version}]).
 
 -include("brod_int.hrl").
@@ -202,26 +206,31 @@
 -type group_config() :: brod_group_config().
 
 -type produce_reply()        :: #brod_produce_reply{}.
--type brod_client_config()        :: proplists:proplist().
--type brod_producer_config()      :: proplists:proplist().
--type brod_consumer_config()      :: proplists:proplist().
--type brod_group_config()         :: proplists:proplist().
+-type brod_client_config()   :: proplists:proplist().
+-type brod_producer_config() :: proplists:proplist().
+-type brod_consumer_config() :: proplists:proplist().
+-type brod_group_config()    :: proplists:proplist().
 -type partition_assignment() :: {kafka_topic(), [kafka_partition()]}.
 -type received_assignments() :: [#brod_received_assignment{}].
 -type partition_fun()        :: fun(( kafka_topic()
                                     , partition()
                                     , key()
                                     , value()) -> {ok, partition()}).
--type call_ref()                  :: #brod_call_ref{}.
--type produce_result()            :: brod_produce_req_buffered
-                                   | brod_produce_req_acked.
+-type call_ref()             :: #brod_call_ref{}.
+-type produce_result()       :: brod_produce_req_buffered
+                              | brod_produce_req_acked.
 
--type kafka_message() :: kafka_message()
+-type kafka_message() :: #kafka_message{}
                        | incomplete_message.
 
 -type offset_time() :: integer()
                      | ?OFFSET_EARLIEST
                      | ?OFFSET_LATEST.
+
+-type offset_commit_policy()          :: commit_to_kafka_v2 % default
+                                       | consumer_managed.
+-type partition_assignment_strategy() :: roundrobin
+                                       | callback_implemented.
 
 %%%_* APIs =====================================================================
 
