@@ -87,20 +87,78 @@
 %% escript
 -export([main/1]).
 
+-export_type([ hostname/0
+             , portnum/0
+             , endpoint/0
+             ]).
+
+-export_type([ consumer_options/0
+             ]).
+
+
+-export_type([ leader_id/0
+             , client_config/0
+             , producer_config/0
+             , consumer_config/0
+             , client/0
+             , required_acks/0
+             ]).
+
+-export_type([ kafka_key/0
+             , kafka_value/0
+             , kafka_kv_list/0
+             , kafka_topic/0
+             , kafka_partition/0
+             , kafka_offset/0
+             , kafka_error_code/0
+             , kafka_group_id/0
+             , kafka_group_member_id/0
+             , kafka_group_member/0
+             , kafka_group_generation_id/0
+             , kafka_compression/0
+             , client_id/0
+             ]).
+
+-export_type([ key/0
+             , value/0
+             , kv_list/0
+             , offset/0
+             , partition/0
+             , topic/0
+             , corr_id/0
+             ]).
+
+-export_type([ group_id/0
+             , member_id/0
+             , group_config/0
+             ]).
+
+-export_type([ brod_produce_reply/0
+             , brod_client_config/0
+             , brod_producer_config/0
+             , brod_consumer_config/0
+             , brod_group_config/0
+             , brod_partition_assignment/0
+             , brod_received_assignments/0
+             , brod_partition_fun/0
+             , call_ref/0
+             , produce_result/0
+             ]).
+
+-export_type([ kafka_message/0 ]).
+
+-export_type([ offset_time/0 ]).
+
 -deprecated([{start_link_client, '_', next_version}]).
 
--include("brod.hrl").
 -include("brod_int.hrl").
+-include("brod_macros.hrl").
+-include("brod_records.hrl").
 
 %%%_* Types ====================================================================
 -type hostname() :: string().
 -type portnum()  :: pos_integer().
 -type endpoint() :: {hostname(), portnum()}.
-
--export_type([ hostname/0
-             , portnum/0
-             , endpoint/0
-             ]).
 
 -type consumer_option() :: begin_offset
                          | min_bytes
@@ -110,24 +168,12 @@
                          | prefetch_count.
 -type consumer_options() :: [{consumer_option(), integer()}].
 
--export_type([ consumer_options/0
-             ]).
-
-
 -type leader_id()       :: non_neg_integer().
 -type client_config()   :: brod_client_config().
 -type producer_config() :: brod_producer_config().
 -type consumer_config() :: brod_consumer_config().
--type client()          :: brod_client_id() | pid().
+-type client()          :: client_id() | pid().
 -type required_acks()   :: -1..1.
-
--export_type([ leader_id/0
-             , client_config/0
-             , producer_config/0
-             , consumer_config/0
-             , client/0
-             , required_acks/0
-             ]).
 
 -type kafka_key()                 :: kpro:key().
 -type kafka_value()               :: kpro:value().
@@ -142,22 +188,7 @@
                                       #kafka_group_member_metadata{}}.
 -type kafka_group_generation_id() :: non_neg_integer().
 -type kafka_compression()         :: no_compression | gzip | snappy.
--type brod_client_id()            :: atom().
-
--export_type([ kafka_key/0
-             , kafka_value/0
-             , kafka_kv_list/0
-             , kafka_topic/0
-             , kafka_partition/0
-             , kafka_offset/0
-             , kafka_error_code/0
-             , kafka_group_id/0
-             , kafka_group_member_id/0
-             , kafka_group_member/0
-             , kafka_group_generation_id/0
-             , kafka_compression/0
-             , brod_client_id/0
-             ]).
+-type client_id()                 :: atom().
 
 -type key()       :: kafka_key().
 -type value()     :: kafka_value().
@@ -167,66 +198,32 @@
 -type topic()     :: kafka_topic().
 -type corr_id()   :: kpro:corr_id().
 
--export_type([ key/0
-             , value/0
-             , kv_list/0
-             , offset/0
-             , partition/0
-             , topic/0
-             , corr_id/0
-             ]).
-
 %% consumer groups
 -type group_id()     :: kafka_group_id().
 -type member_id()    :: kafka_group_member_id().
 -type group_config() :: brod_group_config().
 
--export_type([ group_id/0
-             , member_id/0
-             , group_config/0
-             ]).
-
--type brod_produce_reply()                 :: #brod_produce_reply{}.
--type brod_client_config()                 :: proplists:proplist().
--type brod_producer_config()               :: proplists:proplist().
--type brod_consumer_config()               :: proplists:proplist().
--type brod_group_config()                  :: proplists:proplist().
--type brod_partition_assignment()          :: {kafka_topic()
-                                              , [kafka_partition()]}.
--type brod_received_assignments()          :: [#brod_received_assignment{}].
--type brod_partition_fun()                 :: fun(( kafka_topic()
-                                                  , partition()
-                                                  , key()
-                                                  , value()) ->
-                                                     {ok, partition()}).
--type brod_call_ref()                      :: #brod_call_ref{}.
--type brod_produce_result()                :: brod_produce_req_buffered
-                                            | brod_produce_req_acked.
-
--export_type([ brod_produce_reply/0
-             , brod_client_config/0
-             , brod_producer_config/0
-             , brod_consumer_config/0
-             , brod_group_config/0
-             , brod_partition_assignment/0
-             , brod_received_assignments/0
-             , brod_partition_fun/0
-             , brod_call_ref/0
-             , brod_produce_result/0
-             ]).
+-type brod_produce_reply()        :: #brod_produce_reply{}.
+-type brod_client_config()        :: proplists:proplist().
+-type brod_producer_config()      :: proplists:proplist().
+-type brod_consumer_config()      :: proplists:proplist().
+-type brod_group_config()         :: proplists:proplist().
+-type brod_partition_assignment() :: {kafka_topic(), [kafka_partition()]}.
+-type brod_received_assignments() :: [#brod_received_assignment{}].
+-type brod_partition_fun()        :: fun(( kafka_topic()
+                                    , partition()
+                                    , key()
+                                    , value()) -> {ok, partition()}).
+-type call_ref()                  :: #brod_call_ref{}.
+-type produce_result()            :: brod_produce_req_buffered
+                                   | brod_produce_req_acked.
 
 -type kafka_message() :: kafka_message()
                        | incomplete_message.
 
--export_type([ kafka_message/0
-             ]).
-
 -type offset_time() :: integer()
                      | ?OFFSET_EARLIEST
                      | ?OFFSET_LATEST.
-
--export_type([ offset_time/0
-             ]).
 
 %%%_* APIs =====================================================================
 
@@ -253,7 +250,7 @@ start_client(BootstrapEndpoints) ->
   start_client(BootstrapEndpoints, ?BROD_DEFAULT_CLIENT_ID).
 
 %% @equiv stat_client(BootstrapEndpoints, ClientId, [])
--spec start_client([endpoint()], brod_client_id()) -> ok | {error, any()}.
+-spec start_client([endpoint()], client_id()) -> ok | {error, any()}.
 start_client(BootstrapEndpoints, ClientId) ->
   start_client(BootstrapEndpoints, ClientId, []).
 
@@ -304,7 +301,7 @@ start_client(BootstrapEndpoints, ClientId) ->
 %%     request_timeout (optional, default=120000, constraint: >= 1000)
 %%       Timeout when waiting for a response, socket restart when timedout.
 %% @end
--spec start_client([endpoint()], brod_client_id(), client_config()) ->
+-spec start_client([endpoint()], client_id(), client_config()) ->
                       ok | {error, any()}.
 start_client(BootstrapEndpoints, ClientId, Config) ->
   case brod_sup:start_client(BootstrapEndpoints, ClientId, Config) of
@@ -319,12 +316,12 @@ start_link_client(BootstrapEndpoints) ->
   start_link_client(BootstrapEndpoints, ?BROD_DEFAULT_CLIENT_ID).
 
 %% @equiv stat_link_client(BootstrapEndpoints, ClientId, [])
--spec start_link_client([endpoint()], brod_client_id()) ->
+-spec start_link_client([endpoint()], client_id()) ->
                            {ok, pid()} | {error, any()}.
 start_link_client(BootstrapEndpoints, ClientId) ->
   start_link_client(BootstrapEndpoints, ClientId, []).
 
--spec start_link_client([endpoint()], brod_client_id(), client_config()) ->
+-spec start_link_client([endpoint()], client_id(), client_config()) ->
                            {ok, pid()} | {error, any()}.
 start_link_client(BootstrapEndpoints, ClientId, Config) ->
   brod_client:start_link(BootstrapEndpoints, ClientId, Config).
@@ -388,7 +385,7 @@ get_producer(Client, Topic, Partition) ->
 
 %% @equiv produce(Pid, 0, <<>>, Value)
 -spec produce(pid(), value()) ->
-                 {ok, brod_call_ref()} | {error, any()}.
+                 {ok, call_ref()} | {error, any()}.
 produce(Pid, Value) ->
   produce(Pid, _Key = <<>>, Value).
 
@@ -398,7 +395,7 @@ produce(Pid, Value) ->
 %% The pid should be a partition producer pid, NOT client pid.
 %% @end
 -spec produce(pid(), key(), value()) ->
-        {ok, brod_call_ref()} | {error, any()}.
+        {ok, call_ref()} | {error, any()}.
 produce(ProducerPid, Key, Value) ->
   brod_producer:produce(ProducerPid, Key, Value).
 
@@ -410,7 +407,7 @@ produce(ProducerPid, Key, Value) ->
 %% then call produce/3 to do the real work.
 %% @end
 -spec produce(client(), topic(), partition() | brod_partition_fun(),
-              key(), value()) -> {ok, brod_call_ref()} | {error, any()}.
+              key(), value()) -> {ok, call_ref()} | {error, any()}.
 produce(Client, Topic, PartFun, Key, Value) when is_function(PartFun) ->
   case brod_client:get_partitions_count(Client, Topic) of
     {ok, PartitionsCnt} ->
@@ -462,7 +459,7 @@ produce_sync(Client, Topic, Partition, Key, Value) ->
   end.
 
 %% @doc Block wait for sent produced request to be acked by kafka.
--spec sync_produce_request(brod_call_ref()) ->
+-spec sync_produce_request(call_ref()) ->
         ok | {error, Reason::any()}.
 sync_produce_request(CallRef) ->
   Expect = #brod_produce_reply{ call_ref = CallRef

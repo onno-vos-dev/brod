@@ -103,7 +103,7 @@
         }).
 
 -record(state,
-        { client_id            :: brod:brod_client_id()
+        { client_id            :: brod:client_id()
         , bootstrap_endpoints  :: [brod:endpoint()]
         , meta_sock_pid        :: pid() | dead_socket()
         , payload_sockets = [] :: [#sock{}]
@@ -116,7 +116,7 @@
 %%%_* APIs =====================================================================
 
 -spec start_link( [brod:endpoint()]
-                , brod:brod_client_id()
+                , brod:client_id()
                 , brod:client_config()) -> {ok, pid()} | {error, any()}.
 start_link(BootstrapEndpoints, ClientId, Config) when is_atom(ClientId) ->
   Args = {BootstrapEndpoints, ClientId, Config},
@@ -673,7 +673,7 @@ is_cooled_down(Ts, #state{config = Config}) ->
 %% NOTE: crash in case failed to connect to all of the endpoints.
 %%       should be restarted by supervisor.
 %% @end
--spec start_metadata_socket(brod:brod_client_id(),
+-spec start_metadata_socket(brod:client_id(),
                             [brod:endpoint()],
                             brod:client_config()) ->
                                {ok, pid(),  [brod:endpoint()]}.

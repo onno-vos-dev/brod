@@ -72,7 +72,7 @@ start_link(Parent, Host, Port, ClientId) ->
   start_link(Parent, Host, Port, ClientId, []).
 
 -spec start_link(pid(), brod:hostname(), brod:portnum(),
-                 brod:brod_client_id() | binary(), term()) ->
+                 brod:client_id() | binary(), term()) ->
                     {ok, pid()} | {error, any()}.
 start_link(Parent, Host, Port, ClientId, Options) when is_atom(ClientId) ->
   BinClientId = list_to_binary(atom_to_list(ClientId)),
@@ -85,7 +85,7 @@ start(Parent, Host, Port, ClientId) ->
   start(Parent, Host, Port, ClientId, []).
 
 -spec start(pid(), brod:hostname(), brod:portnum(),
-            brod:brod_client_id() | binary(), term()) ->
+            brod:client_id() | binary(), term()) ->
                {ok, pid()} | {error, any()}.
 start(Parent, Host, Port, ClientId, Options) when is_atom(ClientId) ->
   BinClientId = list_to_binary(atom_to_list(ClientId)),
@@ -157,7 +157,7 @@ debug(Pid, File) when is_list(File) ->
 %%%_* Internal functions =======================================================
 
 -spec init(pid(), brod:hostname(), brod:portnum(),
-           brod:brod_client_id(), [any()]) -> no_return().
+           brod:client_id(), [any()]) -> no_return().
 init(Parent, Host, Port, ClientId, Options) ->
   Debug = sys:debug_options(proplists:get_value(debug, Options, [])),
   Timeout = get_connect_timeout(Options),

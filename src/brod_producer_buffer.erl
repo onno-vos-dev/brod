@@ -42,7 +42,7 @@
 -type data() :: fun(() -> {brod:key(), brod:value()}).
 
 -record(req,
-        { call_ref :: brod:brod_call_ref()
+        { call_ref :: brod:call_ref()
         , data     :: data()
         , bytes    :: non_neg_integer()
         , failures :: non_neg_integer() %% the number of failed attempts
@@ -93,7 +93,7 @@ new(BufferLimit, OnWireLimit, MaxBatchSize, MaxRetry, SendFun) ->
 %% @doc Buffer a produce request.
 %% Respond to caller immediately if the buffer limit is not yet reached.
 %% @end
--spec add(buf(), brod:brod_call_ref(), brod:key(), brod:value()) -> {ok, buf()}.
+-spec add(buf(), brod:call_ref(), brod:key(), brod:value()) -> {ok, buf()}.
 add(#buf{pending = Pending} = Buf, CallRef, Key, Value) ->
   Req = #req{ call_ref = CallRef
             , data     = fun() -> {Key, Value} end

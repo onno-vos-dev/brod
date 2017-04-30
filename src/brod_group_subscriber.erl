@@ -111,7 +111,7 @@
 %-callback assign_partitions([brod:kafka_group_member()],
 %                            [{brod:topic(), brod:partition()}],
 %                            cb_state()) -> [{kafka_group_brod:member_id(),
-%                                             [brod:brod_partition_assignment()]
+%                                             [brod:partition_assignment()]
 %                                            }].
 
 -define(DOWN(Reason), {down, brod_utils:os_time_utc_str(), Reason}).
@@ -207,7 +207,7 @@ commit(Pid) ->
 
 %% @doc Called by group coordinator when there is new assignemnt received.
 -spec assignments_received(pid(), brod:member_id(), integer(),
-                           brod:brod_received_assignments()) -> ok.
+                           brod:received_assignments()) -> ok.
 assignments_received(Pid, MemberId, GenerationId, TopicAssignments) ->
   gen_server:cast(Pid, {new_assignments, MemberId,
                         GenerationId, TopicAssignments}).
@@ -220,7 +220,7 @@ assignments_revoked(Pid) ->
 -spec assign_partitions(pid(), [kpro_GroupMemberMetadata()],
                         [{brod:topic(), brod:partition()}]) ->
                             [{kafka_group_brod:member_id(),
-                              [brod:brod_partition_assignment()]}].
+                              [brod:partition_assignment()]}].
 assign_partitions(Pid, MemberMetadataList, TopicPartitionList) ->
   Call = {assign_partitions, MemberMetadataList, TopicPartitionList},
   gen_server:call(Pid, Call, infinity).

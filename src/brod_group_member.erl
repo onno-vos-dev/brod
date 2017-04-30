@@ -60,14 +60,14 @@
 -callback assign_partitions(pid(), [brod:kafka_group_member()],
                             [{brod:topic(), brod:partition()}]) ->
                                   [{brod:kafka_group_member_id(),
-                                    [brod:brod_partition_assignment()]}].
+                                    [brod:partition_assignment()]}].
 
 %% Called when assignments are received from group leader.
 %% the member process should now call brod:subscribe/5
 %% to start receiving message from kafka.
 -callback assignments_received(pid(), brod:member_id(),
                                kafka_group_brod:generation_id(),
-                               brod:brod_received_assignments()) -> ok.
+                               brod:received_assignments()) -> ok.
 
 %% Called before group re-balancing, the member should call
 %% brod:unsubscribe/3 to unsubscribe from all currently subscribed partitions.

@@ -134,13 +134,13 @@ start_link(ClientPid, Topic, Partition, Config) ->
 
 %% @doc Produce a message to partition asynchronizely.
 %% The call is blocked until the request has been buffered in producer worker
-%% The function returns a call reference of type brod:brod_call_ref() to the
+%% The function returns a call reference of type brod:call_ref() to the
 %% caller so the caller can used it to expect (match) a brod_produce_req_acked
 %% message after the produce request has been acked by configured number of
 %% replicas in kafka cluster.
 %% @end
 -spec produce(pid(), brod:key(), brod:value()) ->
-        {ok, brod:brod_call_ref()} | {error, any()}.
+        {ok, brod:call_ref()} | {error, any()}.
 produce(Pid, Key, Value) ->
   CallRef = #brod_call_ref{ caller = self()
                           , callee = Pid

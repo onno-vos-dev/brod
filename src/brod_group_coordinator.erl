@@ -604,7 +604,7 @@ handle_ack(#state{ acked_offsets = AckedOffsets
 merge_acked_offsets(AckedOffsets, OffsetsToAck) ->
   lists:ukeymerge(1, OffsetsToAck, AckedOffsets).
 
--spec format_assignments(brod:brod_received_assignments()) -> iodata().
+-spec format_assignments(brod:received_assignments()) -> iodata().
 format_assignments(Assignments) ->
   Groupped =
     lists:foldl(
@@ -800,7 +800,7 @@ get_partitions(Client, Topic) ->
 -spec do_assign_partitions(roundrobin, [member()],
                            [{brod:topic(), brod:partition()}]) ->
                               [{ brod:member_id()
-                               , [brod:brod_partition_assignment()]}].
+                               , [brod:partition_assignment()]}].
 do_assign_partitions(roundrobin, Members, AllPartitions) ->
   F = fun({MemberId, M}) ->
         SubscribedTopics = M#kafka_group_member_metadata.topics,
@@ -839,7 +839,7 @@ roundrobin_assign_loop([{Topic, Partition} | Rest] = TopicPartitions,
 %% then fetch the committed offsets of each partition.
 %% @end
 -spec get_topic_assignments(#state{}, kpro_ConsumerGroupMemberAssignment()) ->
-        brod:brod_received_assignments().
+        brod:received_assignments().
 get_topic_assignments(#state{}, <<>>) -> [];
 get_topic_assignments(#state{} = State, Assignment) ->
   #kpro_ConsumerGroupMemberAssignment
@@ -920,7 +920,7 @@ get_committed_offsets(#state{ offset_commit_policy = commit_to_kafka_v2
 -spec resolve_begin_offsets([{brod:topic(), brod:partition()}],
                             [{{brod:topic(), brod:partition()},
                               brod:offset()}]) ->
-                               brod:brod_received_assignments().
+                               brod:received_assignments().
 resolve_begin_offsets([], _) -> [];
 resolve_begin_offsets([{Topic, Partition} | Rest], CommittedOffsets) ->
   Offset =
