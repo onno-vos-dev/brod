@@ -49,7 +49,6 @@
                       , cb_state()) -> cb_ret()).
 -type committed_offsets() :: [{brod:partition(), brod:offset()}].
 -type ack_ref()  :: {brod:partition(), brod:offset()}.
--type kafka_message_set() :: #kafka_message_set{}.
 
 %%%_* behaviour callbacks ======================================================
 
@@ -77,7 +76,7 @@
 %%       partition-consumers are polling for more messages behind the scene
 %%       unless prefetch_count is set to 0 in consumer config.
 -callback handle_message(brod:partition(),
-                         brod:kafka_message() | kafka_message_set(),
+                         brod:message() | brod:message_set(),
                          cb_state()) -> cb_ret().
 
 %%%_* Types and macros =========================================================

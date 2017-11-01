@@ -236,7 +236,7 @@ decode_messages(BeginOffset, Messages) when is_list(Messages) ->
 %% @doc Fetch a single message set from the given topic-partition.
 -spec fetch([endpoint()], topic(), partition(), offset(),
             non_neg_integer(), non_neg_integer(), pos_integer(),
-            sock_opts()) -> {ok, [brod:kafka_message()]} | {error, any()}.
+            sock_opts()) -> {ok, [brod:message()]} | {error, any()}.
 fetch(Hosts, Topic, Partition, Offset, WaitTime,
       MinBytes, MaxBytes, Options) ->
   with_sock(
