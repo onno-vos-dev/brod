@@ -49,6 +49,7 @@
                       , cb_state()) -> cb_ret()).
 -type committed_offsets() :: [{brod:partition(), brod:offset()}].
 -type ack_ref()  :: {brod:partition(), brod:offset()}.
+-type kafka_message_set() :: #kafka_message_set{}.
 
 %%%_* behaviour callbacks ======================================================
 
@@ -76,7 +77,7 @@
 %%       partition-consumers are polling for more messages behind the scene
 %%       unless prefetch_count is set to 0 in consumer config.
 -callback handle_message(brod:partition(),
-                         #kafka_message{} | #kafka_message_set{},
+                         brod:kafka_message() | kafka_message_set(),
                          cb_state()) -> cb_ret().
 
 %%%_* Types and macros =========================================================
@@ -88,15 +89,19 @@
         , acked_offset  :: ?undef | brod:offset()
         }).
 
+-type consumer() :: #consumer{}.
+
 -record(state,
         { client         :: brod:client()
         , client_mref    :: reference()
         , topic          :: brod:topic()
-        , consumers = [] :: [#consumer{}]
+        , consumers = [] :: [consumer()]
         , cb_fun         :: cb_fun()
         , cb_state       :: cb_state()
         , message_type   :: message | message_set
         }).
+
+-type state() :: #state{}.
 
 %% delay 2 seconds retry the failed subscription to partiton consumer process
 -define(RESUBSCRIBE_DELAY, 2000).
@@ -369,7 +374,7 @@ handle_messages(Partition, [Msg | Rest], State) ->
     end,
   handle_messages(Partition, Rest, NewState).
 
--spec handle_ack(ack_ref(), #state{}) -> #state{}.
+-spec handle_ack(ack_ref(), state()) -> state().
 handle_ack(AckRef, #state{consumers = Consumers} = State) ->
   {Partition, Offset} = AckRef,
   case lists:keyfind(Partition, #consumer.partition, Consumers) of
