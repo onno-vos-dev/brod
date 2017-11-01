@@ -544,7 +544,7 @@ join_group(#state{ groupId                       = GroupId
            , msg = RspBody
            } = send_sync(SockPid, Req, SessionTimeout),
   ?ESCALATE_EC(kpro:find(error_code, RspBody)),
-  GenerationId = kpro:find(generation_id,RspBody),
+  GenerationId = kpro:find(generation_id, RspBody),
   LeaderId = kpro:find(leader_id, RspBody),
   MemberId = kpro:find(member_id, RspBody),
   Members = kpro:find(members, RspBody),

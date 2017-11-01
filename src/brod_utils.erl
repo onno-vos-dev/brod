@@ -172,7 +172,7 @@ find_leader_in_metadata(Metadata, Topic, Partition) ->
 -spec os_time_utc_str() -> string().
 os_time_utc_str() ->
   Ts = os:timestamp(),
-  {{Y,M,D}, {H,Min,Sec}} = calendar:now_to_universal_time(Ts),
+  {{Y, M, D}, {H, Min, Sec}} = calendar:now_to_universal_time(Ts),
   {_, _, Micro} = Ts,
   S = io_lib:format("~4.4.0w-~2.2.0w-~2.2.0w:~2.2.0w:~2.2.0w:~2.2.0w.~6.6.0w",
                     [Y, M, D, H, Min, Sec, Micro]),

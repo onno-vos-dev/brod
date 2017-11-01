@@ -311,7 +311,7 @@ subscribe_partition(Client, Topic, Consumer) ->
             [];
           false ->
             AckedOffset >= 0 orelse erlang:error({invalid_offset, AckedOffset}),
-            [{begin_offset, AckedOffset+1}]
+            [{begin_offset, AckedOffset + 1}]
         end,
       case brod:subscribe(Client, self(), Topic, Partition, Options) of
         {ok, ConsumerPid} ->
