@@ -287,8 +287,8 @@ start_link_client(BootstrapEndpoints) ->
 %% @equiv stat_link_client(BootstrapEndpoints, ClientId, [])
 -spec start_link_client([endpoint()], client_id()) ->
         {ok, pid()} | {error, any()}.
-start_link_client(BootstrapEndpoints, ClientId) ->
-  start_link_client(BootstrapEndpoints, ClientId, []).
+start_link_client(BootstrapEndpoints,ClientId) ->
+  start_link_client(BootstrapEndpoints,ClientId, []).
 
 -spec start_link_client([endpoint()], client_id(), client_config()) ->
         {ok, pid()} | {error, any()}.
