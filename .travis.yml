@@ -25,7 +25,6 @@ otp_release:
 script:
   - set -e
   - make vsn-check
-  - scripts/line-width-check.sh
 
   - echo "verifying rebar compilation"
   - rebar get-deps
@@ -42,4 +41,3 @@ script:
   - make xref
   - make test-env
   - make t
-
